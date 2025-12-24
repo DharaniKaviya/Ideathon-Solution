@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Rural Healthcare Appointment System</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <style>
+    :root {
+      --primary: #0066cc;
+      --primary-dark: #004999;
+      --accent: #00aa88;
+      --danger: #cc0033;
+      --bg: #f5f7fb;
+      --card-bg: #ffffff;
+      --border: #d9e2ec;
+      --text: #102a43;
+      --muted: #627d98;
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+    }
+
+    header {
+      background: var(--primary);
+      color: #fff;
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+    }
+
+    header h1 {
+      font-size: 1.25rem;
+      margin: 0;
+    }
+
+    header .badge {
+      background: rgba(255, 255, 255, 0.15);
+      padding: 0.25rem 0.6rem;
+      border-radius: 999px;
+      font-size: 0.75rem;
+    }
+
+    main {
+      max-width: 1200px;
+      margin: 1.5rem auto;
+      padding: 0 1rem 2rem;
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(0, 1.2fr);
+      gap: 1.5rem;
+    }
+
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      padding: 1rem 1.25rem;
+      box-shadow: 0 8px 20px rgba(15, 35, 52, 0.08);
+      border: 1px solid var(--border);
+      margin-bottom: 1rem;
+    }
+
+    h2, h3 {
+      margin: 0 0 0.75rem;
+      font-size: 1.05rem;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      border: 1px solid var(--border);
+      background: #fff;
+      padding: 0.4rem 0.8rem;
+      border-radius: 999px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      color: var(--muted);
+    }
+
+    .tab-btn.active {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+    }
+
+    .section {
+      display: none;
+    }
+    .section.active {
+      display: block;
+    }
+
+    label {
+      display: block;
+      font-size: 0.8rem;
+      margin-bottom: 0.25rem;
+      color: var(--muted);
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 0.4rem 0.5rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      font-size: 0.85rem;
+      margin-bottom: 0.5rem;
+    }
+
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 0.45rem 0.9rem;
+      font-size: 0.85rem;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+    }
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: var(--primary);
+      border: 1px solid rgba(0, 102, 204, 0.3);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: #fff;
+    }
+
+    .row {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .row .col {
+      flex: 1 1 160px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      border-radius: 999px;
+      padding: 0.1rem 0.5rem;
+      font-size: 0.7rem;
+      background: #e0f4ff;
+      color: #035388;
+    }
+
+    .list {
+      display: grid;
+      gap: 0.6rem;
+      max-height: 360px;
+      overflow-y: auto;
+      padding-right: 0.25rem;
+    }
+
+    .item {
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      padding: 0.55rem 0.65rem;
+      font-size: 0.8rem;
+      display: grid;
+      gap: 0.25rem;
+    }
+
+    .muted {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    .badge-sm {
+      font-size: 0.72rem;
+      padding: 0.08rem 0.35rem;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      display: inline-block;
+      margin-left: 0.35rem;
+    }
+
+    .status {
+      font-size: 0.72rem;
+      padding: 0.08rem 0.4rem;
+      border-radius: 999px;
+      border: 1px solid transparent;
+    }
+    .status-confirmed {
+      background: #e3f9e5;
+      color: #2f8132;
+    }
+    .status-cancelled {
+      background: #fde8e8;
+      color: #c81e1e;
+    }
+    .status-completed {
+      background: #effcf6;
+      color: #2d6a4f;
+    }
+
+    .tag {
+      font-size: 0.7rem;
+      padding: 0.08rem 0.4rem;
+      border-radius: 999px;
+      background: #f0f4f8;
+      color: #52606d;
+      display: inline-block;
+      margin-right: 0.25rem;
+    }
+
+    .alert {
+      font-size: 0.8rem;
+      padding: 0.4rem 0.5rem;
+      border-radius: 6px;
+      margin-bottom: 0.5rem;
+      display: none;
+    }
+    .alert.show {
+      display: block;
+    }
+    .alert-success {
+      background: #e3f9e5;
+      color: #2f8132;
+    }
+    .alert-error {
+      background: #fde8e8;
+      color: #c81e1e;
+    }
+
+    .lang-toggle {
+      display: inline-flex;
+      gap: 0.25rem;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,0.3);
+      padding: 0.06rem;
+      background: rgba(0,0,0,0.08);
+      font-size: 0.75rem;
+    }
+    .lang-toggle button {
+      border-radius: 999px;
+      border: none;
+      padding: 0.15rem 0.55rem;
+      background: transparent;
+      color: #e0e8f9;
+      cursor: pointer;
+    }
+    .lang-toggle button.active {
+      background: #ffffff;
+      color: #003e6b;
+    }
+
+    .small {
+      font-size: 0.78rem;
+    }
+
+    .center {
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>Rural Healthcare Appointment System</h1>
+      <div class="small">Tamil Nadu • Government Hospitals • Rural Focus</div>
+    </div>
+    <div style="display:flex; align-items:center; gap:0.75rem; flex-wrap:wrap;">
+      <div class="badge" id="authStatus">Not logged in</div>
+      <div class="lang-toggle">
+        <button type="button" id="btnLangEN" class="active">EN</button>
+        <button type="button" id="btnLangTA">TA</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- LEFT COLUMN -->
+    <section>
+      <div class="card">
+        <h2>Authentication</h2>
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="login-patient">Patient Login</button>
+          <button class="tab-btn" data-tab="register-patient">Register Patient</button>
+        </div>
+
+        <div id="login-patient" class="section active">
+          <div class="alert alert-error" id="loginError"></div>
+          <label>Phone</label>
+          <input type="text" id="loginPhone" placeholder="9876543210" />
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" />
+          <button class="btn-primary" id="btnLogin">Login</button>
+        </div>
+
+        <div id="register-patient" class="section">
+          <div class="alert alert-error" id="regError"></div>
+          <div class="alert alert-success" id="regSuccess"></div>
+          <div class="row">
+            <div class="col">
+              <label>Name</label>
+              <input type="text" id="regName" placeholder="Patient name" />
+            </div>
+            <div class="col">
+              <label>Phone</label>
+              <input type="text" id="regPhone" placeholder="Phone number" />
+            </div>
+          </div>
+          <div class="row">
+            <div class="col">
+              <label>Age</label>
+              <input type="number" id="regAge" placeholder="Age" />
+            </div>
+            <div class="col">
+              <label>Gender</label>
+              <select id="regGender">
+                <option value="">Select</option>
+                <option value="M">Male</option>
+                <option value="F">Female</option>
+                <option value="O">Other</option>
+              </select>
+            </div>
+          </div>
+          <label>Password</label>
+          <input type="password" id="regPassword" placeholder="Password" />
+          <button class="btn-primary" id="btnRegister">Register</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Location & Discovery</h2>
+        <div class="row">
+          <div class="col">
+            <label>Latitude</label>
+            <input type="number" step="0.000001" id="lat" placeholder="10.7905" />
+          </div>
+          <div class="col">
+            <label>Longitude</label>
+            <input type="number" step="0.000001" id="lon" placeholder="78.7047" />
+          </div>
+          <div class="col">
+            <label>Radius (km)</label>
+            <input type="number" id="radius" value="50" />
+          </div>
+        </div>
+        <div class="row" style="align-items:center; margin-bottom:0.4rem;">
+          <button class="btn-ghost" id="btnUseGPS">📍 Use my location</button>
+          <button class="btn-primary" id="btnFindHospitals">Find Hospitals</button>
+          <button class="btn-primary" id="btnFindDoctors">Find Doctors</button>
+        </div>
+        <div class="muted small">
+          Browser will ask for permission when using GPS. You can also manually set latitude/longitude.
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Nearby Hospitals</h2>
+        <div class="list" id="hospitalList"></div>
+        <div class="muted small" id="hospitalEmpty">No hospitals loaded. Click "Find Hospitals".</div>
+      </div>
+    </section>
+
+    <!-- RIGHT COLUMN -->
+    <section>
+      <div class="card">
+        <h2>Appointment Booking</h2>
+        <div class="alert alert-error" id="aptError"></div>
+        <div class="alert alert-success" id="aptSuccess"></div>
+
+        <label>Doctor</label>
+        <select id="doctorSelect">
+          <option value="">Select doctor (use Find Doctors)</option>
+        </select>
+
+        <label>Hospital</label>
+        <select id="hospitalSelect">
+          <option value="">Select hospital (auto from doctor)</option>
+        </select>
+
+        <div class="row">
+          <div class="col">
+            <label>Date</label>
+            <input type="date" id="aptDate" />
+          </div>
+          <div class="col">
+            <label>Time (HH:MM)</label>
+            <input type="time" id="aptTime" />
+          </div>
+        </div>
+
+        <label>Reason</label>
+        <textarea id="aptReason" rows="2" placeholder="E.g., Fever, cold, follow-up"></textarea>
+
+        <button class="btn-primary" id="btnBook">Book Appointment</button>
+      </div>
+
+      <div class="card">
+        <h2>My Appointments</h2>
+        <button class="btn-ghost" id="btnRefreshAppointments" style="margin-bottom:0.4rem;">
+          Refresh
+        </button>
+        <div class="list" id="aptList"></div>
+        <div class="muted small" id="aptEmpty">Login and book to see your appointments.</div>
+      </div>
+
+      <div class="card">
+        <h2>Health Awareness</h2>
+        <div class="row" style="margin-bottom:0.35rem;">
+          <button class="btn-ghost" id="btnAwarenessEN">EN</button>
+          <button class="btn-ghost" id="btnAwarenessTA">TA</button>
+          <button class="btn-primary" id="btnLoadAwareness">Load</button>
+        </div>
+        <div class="list" id="awareList"></div>
+        <div class="muted small" id="awareEmpty">Click "Load" to view awareness content.</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const API_BASE = "http://localhost:5000";
+
+    let authToken = null;
+    let currentUser = null;
+    let currentLang = "EN";
+    let cachedDoctors = [];
+    let cachedHospitals = [];
+
+    // ------------- Helpers -------------
+
+    function setAuthStatus(text) {
+      document.getElementById("authStatus").textContent = text;
+    }
+
+    function showAlert(id, msg, type) {
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.remove("alert-success", "alert-error", "show");
+      if (!msg) return;
+      el.classList.add(type === "success" ? "alert-success" : "alert-error", "show");
+    }
+
+    async function apiFetch(path, options = {}, requiresAuth = false) {
+      const url = API_BASE + path;
+      const headers = options.headers || {};
+      headers["Content-Type"] = "application/json";
+      if (requiresAuth && authToken) {
+        headers["Authorization"] = "Bearer " + authToken;
+      }
+      try {
+        const res = await fetch(url, {
+          ...options,
+          headers,
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          const msg = data.error || `Request failed (${res.status})`;
+          throw new Error(msg);
+        }
+        return data;
+      } catch (err) {
+        throw err;
+      }
+    }
+
+    // ------------- Tabs -------------
+
+    document.querySelectorAll(".tab-btn").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        document.querySelectorAll(".tab-btn").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        const tab = btn.dataset.tab;
+        document.querySelectorAll(".section").forEach((sec) => {
+          sec.classList.toggle("active", sec.id === tab);
+        });
+      });
+    });
+
+    // ------------- Lang toggle -------------
+
+    const btnLangEN = document.getElementById("btnLangEN");
+    const btnLangTA = document.getElementById("btnLangTA");
+
+    btnLangEN.onclick = () => {
+      currentLang = "EN";
+      btnLangEN.classList.add("active");
+      btnLangTA.classList.remove("active");
+    };
+    btnLangTA.onclick = () => {
+      currentLang = "TA";
+      btnLangTA.classList.add("active");
+      btnLangEN.classList.remove("active");
+    };
+
+    // ------------- Auth: Login -------------
+
+    document.getElementById("btnLogin").addEventListener("click", async () => {
+      const phone = document.getElementById("loginPhone").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      showAlert("loginError", "", "error");
+
+      if (!phone || !password) {
+        showAlert("loginError", "Phone and password are required", "error");
+        return;
+      }
+
+      try {
+        const data = await apiFetch("/api/auth/login", {
+          method: "POST",
+          body: JSON.stringify({ phone, password, role: "patient" }),
+        });
+        authToken = data.access_token;
+        currentUser = data.user;
+        setAuthStatus(`Logged in as ${currentUser.name} (Patient)`);
+        showAlert("loginError", "", "error");
+        loadMyAppointments();
+      } catch (err) {
+        showAlert("loginError", err.message, "error");
+        authToken = null;
+        currentUser = null;
+        setAuthStatus("Not logged in");
+      }
+    });
+
+    // ------------- Auth: Register -------------
+
+    document.getElementById("btnRegister").addEventListener("click", async () => {
+      const name = document.getElementById("regName").value.trim();
+      const phone = document.getElementById("regPhone").value.trim();
+      const age = document.getElementById("regAge").value.trim();
+      const gender = document.getElementById("regGender").value;
+      const password = document.getElementById("regPassword").value.trim();
+
+      showAlert("regError", "", "error");
+      showAlert("regSuccess", "", "success");
+
+      if (!name || !phone || !password) {
+        showAlert("regError", "Name, phone and password are required", "error");
+        return;
+      }
+
+      try {
+        const body = {
+          name,
+          phone,
+          password,
+          role: "patient",
+          age: age ? parseInt(age, 10) : null,
+          gender: gender || null,
+        };
+        await apiFetch("/api/auth/register", {
+          method: "POST",
+          body: JSON.stringify(body),
+        });
+        showAlert("regSuccess", "Registered successfully. You can now login.", "success");
+      } catch (err) {
+        showAlert("regError", err.message, "error");
+      }
+    });
+
+    // ------------- Location: GPS -------------
+
+    document.getElementById("btnUseGPS").addEventListener("click", () => {
+      if (!navigator.geolocation) {
+        alert("Geolocation not supported by this browser.");
+        return;
+      }
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const { latitude, longitude } = pos.coords;
+          document.getElementById("lat").value = latitude.toFixed(6);
+          document.getElementById("lon").value = longitude.toFixed(6);
+        },
+        (err) => {
+          console.error(err);
+          alert("Unable to get GPS location.");
+        },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
+    });
+
+    // ------------- Find Hospitals -------------
+
+    async function loadHospitals() {
+      const lat = parseFloat(document.getElementById("lat").value || "10.7905");
+      const lon = parseFloat(document.getElementById("lon").value || "78.7047");
+      const radius = parseFloat(document.getElementById("radius").value || "50");
+
+      const listEl = document.getElementById("hospitalList");
+      const emptyEl = document.getElementById("hospitalEmpty");
+      listEl.innerHTML = "";
+      emptyEl.textContent = "Loading hospitals...";
+
+      try {
+        const data = await apiFetch("/api/hospitals/nearby", {
+          method: "POST",
+          body: JSON.stringify({ latitude: lat, longitude: lon, radius }),
+        });
+        cachedHospitals = data;
+        emptyEl.textContent = data.length ? "" : "No hospitals found in this radius.";
+        renderHospitalList();
+      } catch (err) {
+        emptyEl.textContent = "Failed to load hospitals: " + err.message;
+      }
+    }
+
+    function renderHospitalList() {
+      const listEl = document.getElementById("hospitalList");
+      const emptyEl = document.getElementById("hospitalEmpty");
+      listEl.innerHTML = "";
+      if (!cachedHospitals.length) {
+        emptyEl.textContent = "No hospitals loaded.";
+        return;
+      }
+      emptyEl.textContent = "";
+      cachedHospitals.forEach((h) => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <div><strong>${h.name}</strong></div>
+          <div class="muted">
+            ${h.village}, ${h.taluk}, ${h.district}
+          </div>
+          <div class="small">
+            Distance: <span class="tag">${h.distance} km</span>
+            Doctors: <span class="tag">${h.available_doctors}</span>
+            Beds: <span class="tag">${h.total_beds}</span>
+          </div>
+        `;
+        listEl.appendChild(div);
+      });
+
+      // also populate hospital select for booking
+      const sel = document.getElementById("hospitalSelect");
+      sel.innerHTML = '<option value="">Select hospital</option>';
+      cachedHospitals.forEach((h) => {
+        const opt = document.createElement("option");
+        opt.value = h.id;
+        opt.textContent = `${h.name} (${h.distance} km)`;
+        sel.appendChild(opt);
+      });
+    }
+
+    document.getElementById("btnFindHospitals").addEventListener("click", loadHospitals);
+
+    // ------------- Find Doctors -------------
+
+    async function loadDoctors() {
+      const lat = parseFloat(document.getElementById("lat").value || "10.7905");
+      const lon = parseFloat(document.getElementById("lon").value || "78.7047");
+      const radius = parseFloat(document.getElementById("radius").value || "50");
+
+      const listEl = document.getElementById("hospitalList"); // reuse list for quick view
+      const emptyEl = document.getElementById("hospitalEmpty");
+
+      emptyEl.textContent = "Loading doctors...";
+      listEl.innerHTML = "";
+
+      try {
+        const data = await apiFetch("/api/doctors/nearby", {
+          method: "POST",
+          body: JSON.stringify({ latitude: lat, longitude: lon, radius }),
+        });
+        cachedDoctors = data;
+        emptyEl.textContent = data.length ? "" : "No doctors found.";
+        renderDoctorSelect();
+        renderDoctorListAsHospitals();
+      } catch (err) {
+        emptyEl.textContent = "Failed to load doctors: " + err.message;
+      }
+    }
+
+    function renderDoctorSelect() {
+      const sel = document.getElementById("doctorSelect");
+      sel.innerHTML = '<option value="">Select doctor</option>';
+      cachedDoctors.forEach((d) => {
+        const opt = document.createElement("option");
+        opt.value = d.id;
+        opt.textContent = `${d.name} - ${d.specialization} (${d.distance} km)`;
+        opt.dataset.hospitalId = d.hospital_id;
+        sel.appendChild(opt);
+      });
+    }
+
+    function renderDoctorListAsHospitals() {
+      const listEl = document.getElementById("hospitalList");
+      const emptyEl = document.getElementById("hospitalEmpty");
+      listEl.innerHTML = "";
+      if (!cachedDoctors.length) {
+        emptyEl.textContent = "No doctors loaded.";
+        return;
+      }
+      emptyEl.textContent = "Showing doctors (use Find Hospitals to see hospitals again).";
+      cachedDoctors.forEach((d) => {
+        const div = document.createElement("div");
+        div.className = "item";
+        div.innerHTML = `
+          <div><strong>${d.name}</strong>
+            <span class="badge-sm">${d.specialization}</span>
+          </div>
+          <div class="muted">
+            Hospital ID: ${d.hospital_id} · Distance: ${d.distance} km
+          </div>
+          <div class="small">
+            Fee: ₹${d.consultation_fee || 0} · Status:
+            <span class="tag">${d.availability_status}</span>
+          </div>
+        `;
+        listEl.appendChild(div);
+      });
+    }
+
+    document.getElementById("btnFindDoctors").addEventListener("click", loadDoctors);
+
+    // When doctor chosen, auto-select its hospital if present in cachedHospitals
+    document.getElementById("doctorSelect").addEventListener("change", (e) => {
+      const doctorId = parseInt(e.target.value || "0", 10);
+      const doc = cachedDoctors.find((d) => d.id === doctorId);
+      const selHospital = document.getElementById("hospitalSelect");
+      if (doc) {
+        // if we know hospital id from doctor
+        selHospital.value = doc.hospital_id || "";
+      }
+    });
+
+    // ------------- Book Appointment -------------
+
+    document.getElementById("btnBook").addEventListener("click", async () => {
+      showAlert("aptError", "", "error");
+      showAlert("aptSuccess", "", "success");
+
+      if (!authToken || !currentUser) {
+        showAlert("aptError", "Login as patient to book an appointment.", "error");
+        return;
+      }
+
+      const doctorId = parseInt(document.getElementById("doctorSelect").value || "0", 10);
+      const hospitalId = parseInt(document.getElementById("hospitalSelect").value || "0", 10);
+      const date = document.getElementById("aptDate").value;
+      const time = document.getElementById("aptTime").value;
+      const reason = document.getElementById("aptReason").value.trim();
+
+      if (!doctorId || !hospitalId || !date || !time || !reason) {
+        showAlert("aptError", "All fields are required for booking.", "error");
+        return;
+      }
+
+      try {
+        await apiFetch(
+          "/api/appointments/book",
+          {
+            method: "POST",
+            body: JSON.stringify({
+              doctor_id: doctorId,
+              hospital_id: hospitalId,
+              appointment_date: date,
+              appointment_time: time,
+              reason: reason,
+            }),
+          },
+          true
+        );
+        showAlert("aptSuccess", "Appointment booked successfully.", "success");
+        loadMyAppointments();
+      } catch (err) {
+        showAlert("aptError", err.message, "error");
+      }
+    });
+
+    // ------------- My Appointments -------------
+
+    async function loadMyAppointments() {
+      const listEl = document.getElementById("aptList");
+      const emptyEl = document.getElementById("aptEmpty");
+      listEl.innerHTML = "";
+      emptyEl.textContent = "Loading appointments...";
+
+      if (!authToken || !currentUser) {
+        emptyEl.textContent = "Login to view your appointments.";
+        return;
+      }
+
+      try {
+        const data = await apiFetch("/api/appointments/my", {}, true);
+        if (!data.length) {
+          emptyEl.textContent = "No appointments yet.";
+          return;
+        }
+        emptyEl.textContent = "";
+        data.forEach((apt) => {
+          const div = document.createElement("div");
+          div.className = "item";
+          let statusClass = "status";
+          if (apt.status === "confirmed") statusClass += " status-confirmed";
+          else if (apt.status === "cancelled") statusClass += " status-cancelled";
+          else if (apt.status === "completed") statusClass += " status-completed";
+
+          div.innerHTML = `
+            <div>
+              <strong>${apt.hospital_name || "Hospital"}</strong>
+              <span class="badge-sm">${apt.doctor_name || "Doctor"}</span>
+            </div>
+            <div class="small">
+              Date: ${apt.appointment_date || ""} · Time: ${apt.appointment_time || ""}
+            </div>
+            <div class="small">
+              Reason: ${apt.reason || ""}
+            </div>
+            <div class="small">
+              Status: <span class="${statusClass}">${apt.status}</span>
+            </div>
+            ${
+              apt.status === "confirmed"
+                ? `<div style="margin-top:0.25rem;">
+                     <button class="btn-danger btn-cancel" data-id="${apt.id}">Cancel</button>
+                   </div>`
+                : ""
+            }
+          `;
+          listEl.appendChild(div);
+        });
+
+        // attach cancel handlers
+        listEl.querySelectorAll(".btn-cancel").forEach((btn) => {
+          btn.addEventListener("click", async () => {
+            const id = btn.dataset.id;
+            try {
+              await apiFetch(
+                `/api/appointments/${id}/cancel`,
+                { method: "PUT" },
+                true
+              );
+              loadMyAppointments();
+            } catch (err) {
+              alert("Failed to cancel: " + err.message);
+            }
+          });
+        });
+      } catch (err) {
+        emptyEl.textContent = "Failed to load appointments: " + err.message;
+      }
+    }
+
+    document
+      .getElementById("btnRefreshAppointments")
+      .addEventListener("click", loadMyAppointments);
+
+    // ------------- Awareness -------------
+
+    let awarenessLang = "EN";
+    document.getElementById("btnAwarenessEN").onclick = () => {
+      awarenessLang = "EN";
+    };
+    document.getElementById("btnAwarenessTA").onclick = () => {
+      awarenessLang = "TA";
+    };
+
+    document.getElementById("btnLoadAwareness").addEventListener("click", async () => {
+      const listEl = document.getElementById("awareList");
+      const emptyEl = document.getElementById("awareEmpty");
+      listEl.innerHTML = "";
+      emptyEl.textContent = "Loading...";
+
+      try {
+        const data = await apiFetch(
+          `/api/awareness/all?language=${encodeURIComponent(awarenessLang)}`
+        );
+        if (!data.length) {
+          emptyEl.textContent = "No awareness content available.";
+          return;
+        }
+        emptyEl.textContent = "";
+        data.forEach((c) => {
+          const div = document.createElement("div");
+          div.className = "item";
+          div.innerHTML = `
+            <div><strong>${c.title}</strong></div>
+            <div class="small">${c.category} · ${c.language}</div>
+            <div class="small">${c.content}</div>
+          `;
+          listEl.appendChild(div);
+        });
+      } catch (err) {
+        emptyEl.textContent = "Failed to load content: " + err.message;
+      }
+    });
+
+    // ------------- Init -------------
+
+    (function init() {
+      // set today + 1 day for appointment date min
+      const dateInput = document.getElementById("aptDate");
+      const today = new Date();
+      today.setDate(today.getDate() + 1);
+      const iso = today.toISOString().slice(0, 10);
+      dateInput.min = iso;
+      dateInput.value = iso;
+
+      // default lat/lon (Tiruppur-ish)
+      document.getElementById("lat").value = "10.790500";
+      document.getElementById("lon").value = "78.704700";
+    })();
+  </script>
+</body>
+</html>
